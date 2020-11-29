@@ -238,3 +238,27 @@ button {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
 }
+
+@media (max-width: 600px) {
+  #main-nav .container {
+    grid-template-columns: 1fr;
+    grid-gap: 1.2rem;
+  }
+  #main-nav ul li a {
+    padding: 0.5rem;
+  }
+
+  .container {
+    margin: auto;
+    padding: 0 1rem;
+    overflow: hidden;
+  }
+  .page-container {
+    grid-template-columns: 1fr;
+    margin-right: 1rem;
+    margin-left: 0.2rem;
+  }
+  .page-container .card {
+    width: 350px;
+  }
+}

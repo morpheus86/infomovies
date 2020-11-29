@@ -3,20 +3,6 @@
 import { createStore, action } from "easy-peasy";
 
 export default createStore({
-  modals: {
-    showModal: false,
-    showSearchModal: true,
-    setShowModal: action((state) => {
-      state.showModal = true;
-    }),
-    setHideModal: action((state) => {
-      state.showModal = false;
-    }),
-    setShowSearchModal: action((state) => {
-      state.showModal = true;
-      state.setShowsearchModal = true;
-    }),
-  },
   search: {
     search: "",
     is_pagination: true,
@@ -37,6 +23,26 @@ export default createStore({
     }),
     setIs_pagination: action((state, payload) => {
       state.is_pagination = payload;
+    }),
+  },
+  like: {
+    clicked: false,
+    thumbsUp: 0,
+    thumbsDown: 0,
+    hasLiked: false,
+    hasDisliked: false,
+    setThumbsUp: action((state, payload) => {
+      state.thumbsUp = payload;
+      state.hasLiked = true;
+      state.hasDisliked = false;
+    }),
+    setThumbsDown: action((state, payload) => {
+      state.thumbsDown = payload;
+      state.hasDisliked = true;
+      state.hasLiked = false;
+    }),
+    setClicked: action((state, payload) => {
+      state.clicked = payload;
     }),
   },
 });

@@ -2,6 +2,9 @@
 import Layout from "../../components/Layout";
 import Head from "next/head";
 import fetch from "isomorphic-unfetch";
+import axios from "axios";
+import { useStoreActions, useStoreState } from "easy-peasy";
+import { useEffect } from "react";
 
 const TMDB_IMAGE_BASE_URL = (width = 300) =>
   `https://image.tmdb.org/t/p/w${width}`;
@@ -34,6 +37,34 @@ const Movie = (props) => {
   const productions = movie.productionCompanies
     .map((company) => company.name)
     .join(", ");
+
+  const thumbsUp = useStoreState((state) => state.like.thumbsUp);
+  const thumbsDown = useStoreState((state) => state.like.thumbsDown);
+  const setThumbsUp = useStoreActions((actions) => actions.like.setThumbsUp);
+  const setThumbsDown = useStoreActions(
+    (actions) => actions.like.setThumbsDown
+  );
+
+  useEffect(async () => {
+    const get = async () => {
+      const movieId = props.movie.id;
+      const getRating = await axios.get(`/api/movie/rating/${movieId}`);
+
+      const cookie = getRating.data.cookie;
+      let token = window.sessionStorage.getItem("cookie");
+      if (!token) {
+        window.sessionStorage.setItem("cookie", cookie);
+      }
+      if (!getRating.data.getMovie[0]) {
+        setThumbsUp(0);
+        setThumbsDown(0);
+      } else {
+        setThumbsUp(getRating.data.getMovie[0].thumbsup);
+        setThumbsDown(getRating.data.getMovie[0].thumbsdown);
+      }
+    };
+    get();
+  }, [movie, thumbsUp, thumbsDown]);
   return (
     <Layout
       content={
@@ -49,13 +80,61 @@ const Movie = (props) => {
                     <img src={movie.backdrop_path} alt="" />
                     <div className="thumbs">
                       <div>
-                        <a href="#" aria-label="Thumbs-up" target="_blank">
-                          <i className="fas fa-thumbs-up fa-2x"></i>
+                        <a
+                          href="#"
+                          aria-label="Thumbs-up"
+                          onClick={async (e) => {
+                            try {
+                              e.preventDefault();
+                              const cookie = window.sessionStorage.getItem(
+                                "cookie"
+                              );
+                              const like = await axios.post(
+                                "http://localhost:3000/api/movie/like",
+                                {
+                                  cookie,
+                                  id: props.movie.id,
+                                  title: props.movie.originalTitle,
+                                }
+                              );
+                              setThumbsUp(like.data.thumbsup);
+                              console.log("data", like);
+                            } catch (error) {
+                              console.log("error", error);
+                            }
+                          }}
+                        >
+                          <i className="fas fa-thumbs-up fa-2x">{thumbsUp}</i>
                         </a>
                       </div>
                       <div>
-                        <a href="#" aria-label="Thumbs-down" target="_blank">
-                          <i className="fas fa-thumbs-down fa-2x"></i>
+                        <a
+                          href="#"
+                          aria-label="Thumbs-down"
+                          onClick={async (e) => {
+                            try {
+                              e.preventDefault();
+                              const cookie = window.sessionStorage.getItem(
+                                "cookie"
+                              );
+                              const disLike = await axios.post(
+                                "http://localhost:3000/api/movie/dislike",
+                                {
+                                  cookie,
+                                  id: props.movie.id,
+                                  title: props.movie.originalTitle,
+                                }
+                              );
+
+                              setThumbsDown(disLike.data.thumbsdown);
+                            } catch (error) {
+                              console.log("error", error);
+                            }
+                          }}
+                        >
+                          <i className="fas fa-thumbs-down fa-2x">
+                            {thumbsDown}
+                          </i>
                         </a>
                       </div>
                     </div>
