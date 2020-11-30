@@ -98,7 +98,6 @@ const Movie = (props) => {
                                 }
                               );
                               setThumbsUp(like.data.thumbsup);
-                              console.log("data", like);
                             } catch (error) {
                               console.log("error", error);
                             }
