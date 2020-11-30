@@ -1,6 +1,6 @@
 const express = require("express");
 const next = require("next");
-const port = parseInt(process.env.PORT, 10) || 3000;
+const port = 3000;
 const bodyParser = require("body-parser");
 const env = require("dotenv");
 const dev = process.env.NODE_ENV !== "production";
@@ -11,7 +11,7 @@ const Movies = require("../../model/movies.model");
 const handle = nextApp.getRequestHandler();
 const tmdb = new Tmdb(process.env.MOVIE_API_KEY);
 const cookieParser = require("cookie-parser");
-nextApp.prepare().then(() => {
+module.exports = nextApp.prepare().then(() => {
   const server = express();
   server.use(bodyParser.json());
   server.use(cookieParser());
@@ -87,15 +87,26 @@ nextApp.prepare().then(() => {
   server.post("/api/movie/like", async (req, res, next) => {
     try {
       const { id, title, cookie } = req.body;
-      const oldCookie = req.cookies.cookieName;
 
       let like = await Movies.findAll({
         where: {
           moviesId: id,
         },
       });
+
       if (like[0]) {
-        if (oldCookie === cookie) {
+        let oldCookies = like[0].cookies;
+        let isOldCookieExist = (data) => {
+          for (let oldCookie of data) {
+            if (oldCookie === cookie) {
+              return true;
+            }
+          }
+          return false;
+        };
+        let isOld = isOldCookieExist(oldCookies);
+
+        if (isOld) {
           const thumbsUp = await Movies.update(
             {
               thumbsup: like[0].thumbsup,
@@ -107,9 +118,12 @@ nextApp.prepare().then(() => {
             }
           );
         } else {
+          let old = like[0].cookies;
+          old = [...old, cookie];
           const thumbsUp = await Movies.update(
             {
               thumbsup: like[0].thumbsup + 1,
+              cookies: [...new Set(old.map((o) => o))],
             },
             {
               where: {
@@ -124,6 +138,7 @@ nextApp.prepare().then(() => {
           thumbsup: 1,
           thumbsdown: 0,
           moviesId: id,
+          cookies: [cookie],
         });
       }
 
@@ -135,14 +150,26 @@ nextApp.prepare().then(() => {
   server.post("/api/movie/dislike", async (req, res, next) => {
     try {
       const { id, title, cookie } = req.body;
-      const oldCookie = req.cookies.cookieName;
+
       let disLike = await Movies.findAll({
         where: {
           moviesId: id,
         },
       });
+
       if (disLike[0]) {
-        if (oldCookie === cookie) {
+        let oldCookies = disLike && disLike[0].cookies;
+        let isOldCookieExist = (data) => {
+          for (let oldCookie of data) {
+            if (oldCookie === cookie) {
+              return true;
+            }
+          }
+          return false;
+        };
+        let isOld = isOldCookieExist(oldCookies);
+
+        if (isOld) {
           const thumbsDown = await Movies.update(
             {
               thumbsdown: disLike[0].thumbsdown,
@@ -154,9 +181,13 @@ nextApp.prepare().then(() => {
             }
           );
         } else {
+          let old = disLike[0].cookies;
+          old = [...old, cookie];
+
           const thumbsDown = await Movies.update(
             {
               thumbsdown: disLike[0].thumbsdown + 1,
+              cookies: [...new Set(old.map((o) => o))],
             },
             {
               where: {
@@ -164,6 +195,7 @@ nextApp.prepare().then(() => {
               },
             }
           );
+          console.log("voila");
         }
       } else {
         disLike = await Movies.create({
@@ -171,6 +203,7 @@ nextApp.prepare().then(() => {
           thumbsup: 0,
           thumbsdown: 1,
           moviesId: id,
+          cookies: [cookie],
         });
       }
 

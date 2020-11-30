@@ -1,4 +1,4 @@
-"use strict";
+require("dotenv").config();
 const withCSS = require("@zeit/next-css");
 module.exports = withCSS({
   webpack: function (config) {
@@ -15,5 +15,8 @@ module.exports = withCSS({
       },
     });
     return config;
+  },
+  env: {
+    API: process.env.BACKEND_API_URL,
   },
 });

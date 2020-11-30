@@ -15,6 +15,10 @@ const Movies = db.define("movies", {
   moviesId: {
     type: Sequelize.INTEGER,
   },
+  cookies: {
+    type: Sequelize.ARRAY(Sequelize.STRING),
+    defaultValue: [],
+  },
 });
 
 module.exports = Movies;

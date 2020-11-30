@@ -134,6 +134,7 @@ const Index = (props) => {
 Index.getInitialProps = async () => {
   const response = await fetch("http://localhost:3000/api/movies");
   const movies = await response.json();
+
   return {
     movies,
   };
