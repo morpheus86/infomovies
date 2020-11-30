@@ -31,7 +31,7 @@ nextApp.prepare().then(() => {
         });
         console.log("cookie created successfully");
       } else {
-        console.log("cookie exist");
+        console.log("cookie exist", cookie);
       }
       next();
     } catch (error) {
