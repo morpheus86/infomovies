@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./pages/api/movies.js",
+    "dev": "next",
     "build": "next build",
-    "start": "NODE_ENV=production node ./pages/api/movies.js"
+    "start": "next start"
   },
   "keywords": [],
   "author": "",
